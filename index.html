@@ -3,61 +3,41 @@
 <head>
 	<title>WebRTC vid-exmp</title>
 	<style>
-		.video-wrapper {
-			display: inline-block;
-			text-align: center;
-			margin: 0 50px;
+		input {
+			padding-inline: 3rem;
+			padding-block: 5px;
 		}
 
-		video {
-			width: 400px;
-			height: 400px;
-			background: black;
-		}
-
-		p {
-			font-weight: bolder;
-			font-size: x-large;
-		}
-
-
-		body {
-			font-family: monospace;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+		button {
+			padding-inline: 2rem;
+			padding-block: 5px;
 		}
 	</style>
 </head>
 <body>
-	<div class="setup">
-		<div>
-			<h2>WebRTC Connection</h2>
-			<label>Your Name:</label>
-			<input id="username" type="text" placeholder="Enter your name: ">
-			<button onclick="register()">Register</button>
+	<input type="text" id="username" placeholder="your username..."/>
+	<button onclick="register()">Register</button>
 
-			<br><br>
+	<br/>
+	<br/>
 
-			<label>Call Peer:</label>
-			<input id="peername" type="text" placeholder="Enter peer's name: ">
-			<button onclick="startCall()">Call</button>
-		</div>
-	</div>
+	<input type="file" id="fileInput" />
+	<button onclick="sendFile()">Send File</button>
+
+	<br/>
+	<br/>
 
 
-<div>
-	<div class="video-wrapper">
-		<p>LocalVideo</p>
-		<video id="localVideo" autoplay playsinline></video>
-	</div>
+	<input type="text" id="peername" placeholder="connect to...">
+	<button onclick="startCall()">Connect</button>
 
-	<div class="video-wrapper">
-		<p>RemoteVideo</p>
-		<video id="remoteVideo" autoplay playsinline></video>
-	</div>
-</div>
+	<br/>
+	<br/>
 
+	<input id="msgInput" placeholder="Type message..." />
+	<button onclick="sendMessage()">Send</button>
+
+	<div id="chat"></div>
 	<script src="client.js"></script>
 </body>
 </html>

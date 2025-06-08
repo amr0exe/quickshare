@@ -1,10 +1,14 @@
-let localStream
 let peerConnection
+let dataChannel
 let userName
 let peerName
 
 const ws = new WebSocket("ws://localhost:3000")
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302"}] }
+
+let incomingFileChunks = []
+let receivingFile = false
+let incomingFileName = ""
 
 ws.onmessage = async (event) => {
     const data = JSON.parse(event.data)
@@ -28,19 +32,15 @@ function register() {
 }
 
 async function startCall() {
-    // take receivers name from inputBox
     peerName = document.getElementById("peername").value
-
-    // get camera, mic permission
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-    // stream local-video first
-    document.getElementById("localVideo").srcObject = localStream
-    
-    // add localStream to peerConnection
     peerConnection = new RTCPeerConnection(config)
-    localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream))
 
-    // sends ice-candidate
+    // data-channel
+    dataChannel = peerConnection.createDataChannel("myChannel")
+
+    setupDataChannel(dataChannel)
+
+    // ice-candidate
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
             ws.send(JSON.stringify({
@@ -49,11 +49,7 @@ async function startCall() {
                 to: peerName
             }))
         }
-    }
-
-    // pointer to stream remote-peers video
-    peerConnection.ontrack = (event) => {
-        document.getElementById("remoteVideo").srcObject = event.streams[0]
+        console.log("ICE Connection State: From caller:", event.candidate)
     }
 
     // createOffer
@@ -65,34 +61,111 @@ async function startCall() {
 }
 
 async function handleOffer(offer, from) {
-  peerName = from;
+    peerName = from
+    peerConnection = new RTCPeerConnection(config)
 
-  // Get user media
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  document.getElementById("localVideo").srcObject = localStream;
-
-  peerConnection = new RTCPeerConnection(config);
-  localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
-
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      ws.send(JSON.stringify({
-        type: "candidate",
-        candidate: event.candidate,
-        to: peerName
-      }));
+    // listen for incoming dataChannel
+    peerConnection.ondatachannel = (event) => {
+        dataChannel = event.channel
+        setupDataChannel(dataChannel)
     }
-	console.log("ICE Connection State: ", peerConnection.iceConnectionState)
-  };
 
-  peerConnection.ontrack = (event) => {
-    document.getElementById("remoteVideo").srcObject = event.streams[0];
-  };
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+        ws.send(JSON.stringify({
+            type: "candidate",
+            candidate: event.candidate,
+            to: peerName
+        }));
+        }
+        console.log("ICE Connection State: ", peerConnection.iceConnectionState)
+    };
 
-  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
 
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
+    ws.send(JSON.stringify({ type: "answer", answer, to: peerName, from: userName }));
+}
 
-  ws.send(JSON.stringify({ type: "answer", answer, to: peerName, from: userName }));
+function setupDataChannel(channel) {
+    channel.onopen = () => {
+        console.log(" ### Data channel is open!!!")
+    }
+
+    channel.onmessage = (event) => {
+           // handle end of file transfer
+        if (typeof event.data === "string" && event.data.startsWith("EOF:")) { 
+            const blob = new Blob(incomingFileChunks)
+            const downloadLink = document.createElement("a")
+            downloadLink.href = URL.createObjectURL(blob)
+
+            incomingFileName = event.data.slice(4)
+
+            downloadLink.download = incomingFileName
+            downloadLink.textContent = `Download ${incomingFileName}`
+
+            document.getElementById("chat").appendChild(downloadLink)
+            document.getElementById("chat").appendChild(document.createElement("br"))
+        
+            // Reset for next file
+            incomingFileChunks = []
+            receivingFile = false
+
+            // handle binary file chunk
+        } else if (event.data instanceof ArrayBuffer) {
+            incomingFileChunks.push(event.data)
+            receivingFile = true
+        
+            // handle text message
+        } else {
+            const div = document.createElement("div")
+            div.innerText = `From Peer: ${event.data}`
+            document.getElementById("chat").appendChild(div)
+        }
+    }
+}
+
+function sendFile() {
+    const fileInput = document.getElementById("fileInput")
+    const file = fileInput.files[0]
+    if (!file) return
+
+    const chunkSize = 16 * 1024 // 16KB
+    let offset = 0
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        dataChannel.send(e.target.result)
+        offset += e.target.result.byteLength
+
+        if (offset < file.size) {
+            readSlice(offset)
+        } else {
+            dataChannel.send("EOF:" + file.name)
+            console.log("File transfer completed...")
+        }
+    }
+
+    const readSlice = (o) => {
+        const slice = file.slice(o, o+chunkSize)
+        reader.readAsArrayBuffer(slice)
+    }
+
+    readSlice(0)
+}
+
+function sendMessage() {
+    const input = document.getElementById("msgInput")
+    const msg = input.value
+
+    if (dataChannel && dataChannel.readyState === "open") {
+        dataChannel.send(msg)
+
+        const div = document.createElement("div")
+        div.textContent = ` Your message: ${msg}`
+        document.getElementById("chat").appendChild(div)
+    
+        input.value = ""
+    }
 }
