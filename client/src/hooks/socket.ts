@@ -1,4 +1,4 @@
-import { useRef, useEffect} from "react"
+import { useRef, useEffect } from "react"
 
 
 export function useSocket(url: string) {
@@ -40,12 +40,11 @@ export function useSocket(url: string) {
             requestRoomInfo()
         }
 
-        // moved to webrtc.ts
+        // remaining moved to webrtc.ts
 
         ws.current.onclose = () => {
             console.log("WebSocket disconnected!!!")
         }
-
     }, [url])
 
     return { ws, fileRef, registerUser, joinRoom, requestRoomInfo }

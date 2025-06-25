@@ -2,9 +2,11 @@ import { WebSocketServer } from "ws";
 import http from "http"
 
 import { messageController } from "./controller/message_controller.js";
+import { leaveRoom } from "./service/rooms_service.js";
+import { get_roomName } from "./service/util_service.js";
 
 const server = http.createServer()
-const wss = new WebSocketServer({server})
+const wss = new WebSocketServer({ server })
 
 wss.on("connection", (ws) => {
 	console.log("---- new client connected")
@@ -16,6 +18,8 @@ wss.on("connection", (ws) => {
 	})
 
 	ws.on("close", () => {
+		let roomNames = get_roomName(ws);
+		roomNames.forEach((e) => leaveRoom(e, ws))
 		console.log("---- client disconnected!!!")
 	})
 })

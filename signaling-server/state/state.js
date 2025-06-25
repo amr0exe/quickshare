@@ -16,11 +16,17 @@ users_name::
 	- websocket_client => registered_username
 {["ws1", "alice"], ["ws2", "bear"]}
 
+users_room::
+	- will store user's joined rooms
+	- value being Set since user's might join multiples
+{["ws1", new Set("room1", "room2")]}
+
 */
 
 const state = {
 	rooms: new Map,
 	users_name: new Map,
+	users_room: new Map,
 }
 
 ;(function createDefaultRooms() {

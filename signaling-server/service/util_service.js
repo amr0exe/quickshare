@@ -8,6 +8,9 @@ const register_name = (ws, name) => {
 	
 	state.users_name.set(ws, name)
 	console.log("current users: ", state.users_name.values())
+
+	// add client-metadata
+	state.users_room.set(ws, new Set())
 }
 
 const get_name = (ws) => {
@@ -22,6 +25,10 @@ const get_socket = (name) => {
 		}
 	}
 	return null
+}
+
+const get_roomName = (ws) => {
+	return state.users_room.get(ws)
 }
 
 const find_room_peer = (roomName, peerName) => {
@@ -48,4 +55,4 @@ const find_room_peer = (roomName, peerName) => {
     return null
 }
 
-export { get_name, register_name, find_room_peer }
+export { get_name, register_name, find_room_peer, get_roomName }

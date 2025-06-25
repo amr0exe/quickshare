@@ -143,7 +143,6 @@ export const useConnection = () => {
 			roomName: room_name
         }))
     }
-// ...existing code...
 
 	const setupDC = (channel: RTCDataChannel) => {
 		channel.binaryType = "arraybuffer"
@@ -193,7 +192,7 @@ export const useConnection = () => {
 				}])
 			}
 		}
-	}// ...existing code...
+	}
 
 	const sendFile = () => {
 		const fileInput = fileRef.current as HTMLInputElement | null
