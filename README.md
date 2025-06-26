@@ -25,7 +25,7 @@
 ---
 
 ## Demo
-<video src="https://github.com/user-attachments/assets/f7c05ee2-9fb1-40d9-abd5-53d780806361" width="600" autoplay></video>
+<video src="https://github.com/user-attachments/assets/d17d0352-19de-4bd7-a1ac-156877b10bc8" width="600" autoplay></video>
 
 ----
 
