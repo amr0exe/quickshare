@@ -9,7 +9,7 @@ function App() {
 
 		<SocketProvider>
 			<BrowserRouter>
-				<Routes>
+			<Routes>
 					<Route path="/" element={ <Landing /> } />
 					<Route path="/lobby" element={ <Lobby /> } />
 					<Route path="/room/:name" element={ <Room /> } />
