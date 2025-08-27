@@ -51,4 +51,4 @@ pnpm run dev
 [on signalling-server]
 node app.js
 ```
-- visit http://localhost:3000
+- visit http://localhost:5173

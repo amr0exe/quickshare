@@ -76,7 +76,7 @@ export const useConnection = () => {
 		return () => {
 			ws.current?.removeEventListener('message', handleMessage)
 		}
-	}, [])
+	}, [userName, roomName])
 
 
     // webRTC connection-setup functions
@@ -205,35 +205,50 @@ export const useConnection = () => {
 		console.log("Starting file transfer: ", file.name, file.size, "byte")
 
 		const chunkSize = 16 * 1024
+		if(dataChannel.current) dataChannel.current.bufferedAmountLowThreshold = chunkSize;
 		let offset = 0
 
 		const reader = new FileReader()
+
+		const readAndSend = () => {
+			const slice = file.slice(offset, offset + chunkSize)
+			reader.readAsArrayBuffer(slice)
+		}
+
 		reader.onload = (e) => {
-			const result = e.target?.result as ArrayBuffer
-			if (result && dataChannel.current) {
-				dataChannel.current.send(result)
-				offset += result.byteLength
+			const chunk = e.target?.result as ArrayBuffer
+			if (!dataChannel.current || !chunk) return
+
+			try {
+				dataChannel.current.send(chunk)
+				offset += chunk.byteLength
 
 				if (offset < file.size) {
-					readSlice(offset)
+					if (dataChannel.current.bufferedAmount < dataChannel.current.bufferedAmountLowThreshold) {
+						readAndSend()
+					}
 				} else {
 					dataChannel.current.send("EOF:" + file.name)
 					console.log("File transfer completed ...")
-
 					setMessages(prev => [...prev, {
 						type: "text",
 						content: `Sent: ${file.name}`,
 					}])
 				}
+			} catch (error) {
+				console.error("Error sending data channel message:", error)
 			}
 		}
 
-		const readSlice = (o: number) => {
-			const slice = file.slice(o, o+chunkSize)
-			reader.readAsArrayBuffer(slice)
+		if(dataChannel.current) {
+			dataChannel.current.onbufferedamountlow = () => {
+				if (offset < file.size) {
+					readAndSend()
+				}
+			}
 		}
 
-		readSlice(0)
+		readAndSend()
 	}
 
 	const sendMessage = () => {
