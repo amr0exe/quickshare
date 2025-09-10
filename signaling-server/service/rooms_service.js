@@ -1,30 +1,41 @@
 import { state } from "../state/state.js";
 
 const joinRoom = (roomName, ws) => {
-	// if no room
-	const room = state.rooms.get(roomName)
 
-	// if room exists
-	// if client already exists
-	if (room.has(ws)) {
-		console.log("client duplication!!!")
+	// ask if room exists
+	// if yes join only if memberspace left
+	// if not drop action
+
+	const current_rooms = state.rooms.get(roomName)
+
+	if (current_rooms.has(ws)) {
+		console.log("Client duplication!!")
 		return
 	}
-	// add ws client
-	room.add(ws)
+		
+	// Capacity check before adding
+	if (current_rooms.size >= 2) {
+		console.log("Room is full");
+		return
+	}
+
+	// add ws client 
+	// actual joining
+	current_rooms.add(ws)
 
 	// ensurance1
 	if (!state.users_room.has(ws)) {
 		state.users_room.set(ws, new Set())
 	}
-
 	// add to client's room_list
 	state.users_room.get(ws).add(roomName)
+	console.log("Clients current Rooms: ", state.users_room.get(ws))
 
-	if (room.size >= 2) {
+	if (current_rooms.size >= 2) {
 		const sender = state.users_name.get(ws)
 		// room-full message
-		for (const cr of room) {
+		for (const cr of current_rooms) {
+			console.log("send")
 			cr.send(JSON.stringify({
 				type: "room_full",
 				from: sender

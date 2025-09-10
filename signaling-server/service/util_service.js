@@ -1,7 +1,13 @@
 import { state } from "../state/state.js";
 
 const register_name = (ws, name) => {
-	if (state.users_name.has(ws)) {
+	// sanitization
+	if (!name || name.trim === "") {
+		console.log("name not valid")
+		return
+	}
+ 
+	if (state.users_name.has(ws) || [...state.users_name.values()].includes(name.trim())) {
 		console.log("Client already registered!!!")
 		return
 	}

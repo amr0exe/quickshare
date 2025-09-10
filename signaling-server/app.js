@@ -19,11 +19,19 @@ wss.on("connection", (ws) => {
 
 	ws.on("close", () => {
 		let roomNames = get_roomName(ws);
-		roomNames.forEach((e) => leaveRoom(e, ws))
+		try {
+			roomNames.forEach((e) => leaveRoom(e, ws))
+		} catch (err) {
+			console.log("No client/room to leave form", err)
+		}
+
 		console.log("---- client disconnected!!!")
 	})
 })
 
-server.listen(3000, "0.0.0.0", () => {
-	console.log("Signalling server running on port :3000")
+const PORT = process.env.PORT || 3000
+const HOST = process.env.HOST || "0.0.0.0"
+
+server.listen(PORT, HOST, () => {
+	console.log(`Signalling server running on ${HOST}:${PORT}`)
 })
