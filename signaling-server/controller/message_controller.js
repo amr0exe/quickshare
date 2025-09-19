@@ -1,4 +1,4 @@
-import { getRoomInfo, joinRoom } from "../service/rooms_service.js"
+import { getRoomInfo, joinRoom, leaveRoom } from "../service/rooms_service.js"
 import { find_room_peer, register_name } from "../service/util_service.js"
 
 const messageController = (ws, msg) => {
@@ -15,6 +15,10 @@ const messageController = (ws, msg) => {
 
 			case "join_room":
 				joinRoom(data.room_name, ws)
+			break
+
+			case "leave_room":
+				leaveRoom(data.room_name, ws)
 			break
 
 			case "rooms_list":

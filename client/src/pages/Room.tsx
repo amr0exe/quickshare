@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useState } from "react"
 import { useSocketContext } from "../Context/SocketContext"
 import { useConnection } from "../hooks/webrtc"
@@ -8,7 +8,9 @@ function Room() {
     const [fname, setFname] = useState("choose file...")
 
     const { fileRef } = useSocketContext()
-    const { currentMsg, setCurrentMsg, messages, sendFile, sendMessage } = useConnection()
+    const { currentMsg, setCurrentMsg, messages, sendFile, sendMessage, leaveRoom } = useConnection()
+
+	const navigate = useNavigate()
 
     const truncateFileName = (name: string, maxLength = 15) => {
     if (name.length <= maxLength) return name;
@@ -20,7 +22,20 @@ function Room() {
     setFname(file ? truncateFileName(file.name, 15) : "choose file...");
     };
 
+	const handleLeaveRoom= () => { 
+		leaveRoom(name!) // bang, strictly saying its non-null // TODO: TEST _IT
+		navigate("/lobby")
+	}
+
     return <div className="max-w-2xl h-screen mx-auto border-x-2 border-dashed">
+		<div className="absolute top-0 right-0 p-2">
+			<button
+				onClick={handleLeaveRoom} 
+				className="bg-red-600 text-white font-semibold font-stretch-condensed rounded-sm px-4 py-1.5"
+			>
+				Leave
+			</button>
+		</div>
         <p className="text-4xl font-stretch-condensed font-semibold text-center p-5">RoomName: <span className="font-normal">{name}</span></p>
 
         <div className="h-2/3 p-5">

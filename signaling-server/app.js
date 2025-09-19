@@ -6,7 +6,7 @@ import { leaveRoom } from "./service/rooms_service.js";
 import { get_roomName } from "./service/util_service.js";
 
 const server = http.createServer()
-const wss = new WebSocketServer({ server })
+export const wss = new WebSocketServer({ server })
 
 wss.on("connection", (ws) => {
 	console.log("---- new client connected")
