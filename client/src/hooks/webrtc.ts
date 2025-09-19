@@ -33,7 +33,8 @@ export const useConnection = () => {
 			currentMsg,
 			setCurrentMsg,
 			messages,
-			roomInfo
+			roomInfo,
+			leaveRoom: () => {},
 		}
 	}
     const { userName, roomName } = context
@@ -271,5 +272,26 @@ export const useConnection = () => {
 		}
 	}
 
-    return { peerConnection, handleOffer, startCall, sendFile, sendMessage, currentMsg, setCurrentMsg, messages, roomInfo }
+	// TODO: peerConnection cleanups, [TEST_IT]
+	const leaveRoom = (roomName: string) => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN && roomName) {
+            ws.current.send(JSON.stringify({
+                type: "leave_room",
+                room_name: roomName
+            }))
+        } 
+		
+		if (dataChannel.current) {
+			dataChannel.current.close()
+			dataChannel.current = null
+		}
+
+		if (peerConnection.current) {
+			peerConnection.current.close()
+		}
+
+		incomingChunksRef.current = []
+	}
+
+    return { peerConnection, handleOffer, startCall, sendFile, sendMessage, currentMsg, setCurrentMsg, messages, roomInfo, leaveRoom }
 }

@@ -1,4 +1,6 @@
 import { state } from "../state/state.js";
+import { get_name } from "./util_service.js";
+import { wss } from "../app.js";
 
 const joinRoom = (roomName, ws) => {
 
@@ -43,6 +45,8 @@ const joinRoom = (roomName, ws) => {
 			break
 		}
 	}
+
+	broadcastRoomInfo(ws)
 }
 
 const createRoom = (roomName) => {
@@ -67,8 +71,16 @@ const leaveRoom = (roomName, ws) => {
 		room.delete(ws)
 	}
 
+	let client = get_name(ws)
+	// delete user_records
 	state.users_name.delete(ws)
-	console.log("Left room:: ", roomName)
+	// delete from user's room records
+	if (state.users_room.get(ws).size > 0) {
+		state.users_room.get(ws).delete(roomName)
+	}
+	console.log(`${client} Left room:: ${roomName}`)
+
+	broadcastRoomInfo(ws)
 }
 
 const getRoomInfo = (ws) => {
@@ -81,6 +93,23 @@ const getRoomInfo = (ws) => {
 		type: "room_info",
 		rooms: info
 	}))
+}
+
+const broadcastRoomInfo = (c_ws) => {
+	const info = []
+	for (const [name, members] of state.rooms) {
+		info.push({name, size: members.size})
+	}
+
+	// push room_state toAll
+	wss.clients.forEach((client) => {
+		if (client.readyState === WebSocket.OPEN && client != c_ws) {
+			client.send(JSON.stringify({
+				type: "room_info",
+				rooms: info
+			}))
+		}
+	})
 }
 
 export { joinRoom, createRoom, leaveRoom, getRoomInfo }
