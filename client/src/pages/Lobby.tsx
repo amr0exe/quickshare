@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import MyContext from "../Context/Context"
 import { useSocketContext } from "../Context/SocketContext"
 import { useConnection } from "../hooks/webrtc"
+import { toast } from "sonner"
 
 function Lobby() {
     const context = useContext(MyContext)
@@ -18,6 +19,9 @@ function Lobby() {
     const handleJoinRoom = (roomName: string) => {
         if (userName === "") {
             console.log("Register with username first...")
+            toast("User Registration required!!!", {
+                description: "You need to register your usernmae",
+            })
             return
         }
         joinRoom(roomName)
@@ -44,6 +48,7 @@ function Lobby() {
                         className="border-2 rounded-bl-xl px-2 py-1.5 text-lg md:py-2 md:px-6 md:bg-white"
                     />
 
+					{/* TODO: show toaster, when user tries joining room without registering username */}
                     <button
                         className="border-2  rounded-tr-xl bg-black text-white font-semibold cursor-pointer hover:opacity-75 px-3 md:px-7 py-3.5 "
                         onClick={() => registerUser(userName)}

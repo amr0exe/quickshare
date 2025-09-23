@@ -6,6 +6,10 @@ export function useSocket(url: string) {
     const fileRef = useRef<HTMLInputElement|null>(null)
 
     const registerUser = (userName: string) => {
+		if (userName === "") {
+			console.log("Username can't be empty")
+			return
+		}
         if (ws.current && ws.current.readyState === WebSocket.OPEN && userName) {
             ws.current.send(JSON.stringify({
                 type: "register",
