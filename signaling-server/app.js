@@ -19,6 +19,12 @@ wss.on("connection", (ws) => {
 
 	ws.on("close", () => {
 		let roomNames = get_roomName(ws);
+
+		if (!roomNames) {
+			console.log("---- client disconnected!!! noRoom")
+			return
+		}
+
 		try {
 			roomNames.forEach((e) => leaveRoom(e, ws))
 		} catch (err) {
