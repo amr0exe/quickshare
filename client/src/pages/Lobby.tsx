@@ -48,7 +48,7 @@ function Lobby() {
                         className="border-2 rounded-bl-xl px-2 py-1.5 text-lg md:py-2 md:px-6 md:bg-white"
                     />
 
-					{/* TODO: show toaster, when user tries joining room without registering username */}
+					{/* shows toaster, when user tries joining room without registering username */}
                     <button
                         className="border-2  rounded-tr-xl bg-black text-white font-semibold cursor-pointer hover:opacity-75 px-3 md:px-7 py-3.5 "
                         onClick={() => registerUser(userName)}

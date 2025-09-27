@@ -21,6 +21,9 @@ export const useConnection = () => {
 	const [messages, setMessages] = useState<Array<{type: 'text' | 'file', content: string, fileName?: string}>>([])
 	const [roomInfo, setRoomInfo] = useState<Room[]>([])
 
+	const [isSending, setIsSending] = useState(false)
+	const [progress, setProgress] = useState(0)
+
     const context = useContext(MyContext)
     const { ws, fileRef } = useSocketContext()
     if (!context) {
@@ -30,10 +33,10 @@ export const useConnection = () => {
 			startCall: async () => {},
 			sendFile: async () => {},
 			sendMessage: async () => {},
-			currentMsg,
+			currentMsg: "",
 			setCurrentMsg,
-			messages,
-			roomInfo,
+			messages: [],
+			roomInfo: [],
 			leaveRoom: () => {},
 		}
 	}
@@ -203,53 +206,93 @@ export const useConnection = () => {
 			return
 		}
 
-		console.log("Starting file transfer: ", file.name, file.size, "byte")
+		// START LOADER
+		setIsSending(true)
+		setProgress(0)
 
-		const chunkSize = 16 * 1024
+		const inMB = Math.round(file.size/(1024*1024))
+		console.log("Starting file transfer: ", file.name, file.size, "byte", `${inMB} MB`)
+
+		const chunkSize = 256 * 1024 // 256KB per buffer
 		if(dataChannel.current) dataChannel.current.bufferedAmountLowThreshold = chunkSize;
 		let offset = 0
+		let eofSent = false
 
 		const reader = new FileReader()
 
-		const readAndSend = () => {
-			const slice = file.slice(offset, offset + chunkSize)
-			reader.readAsArrayBuffer(slice)
-		}
+		const readNextChunk = () => {
+			if (offset >= file.size && !eofSent) {
+				eofSent=true
+				setProgress(100)
 
+				setTimeout(() => {
+					if (dataChannel.current?.readyState === "open") {
+						dataChannel.current.send("EOF:" + file.name)
+						console.log("File Transfer compelted...")
+						setMessages(prev => [...prev, {
+							type: "text",
+							content: `Sent: ${file.name}`
+						}])
+					}
+
+					setTimeout(() => {
+						setIsSending(false)
+						setProgress(0)
+					}, 500)
+				}, 100)
+				return
+			}
+
+			// stop reading when its done
+			if (offset >= file.size) {
+				return
+			}
+
+			if (dataChannel.current && dataChannel.current.bufferedAmount > dataChannel.current.bufferedAmountLowThreshold) {
+				return
+			}
+
+			// UPDATE PROGRESS
+			const currentProgress = Math.min(Math.round((offset/file.size) * 100), 100)
+			setProgress(currentProgress)
+
+			const slice = file.slice(offset, offset+chunkSize)
+			reader.readAsArrayBuffer(slice)
+			offset += chunkSize
+		}
 		reader.onload = (e) => {
 			const chunk = e.target?.result as ArrayBuffer
 			if (!dataChannel.current || !chunk) return
 
 			try {
 				dataChannel.current.send(chunk)
-				offset += chunk.byteLength
-
-				if (offset < file.size) {
-					if (dataChannel.current.bufferedAmount < dataChannel.current.bufferedAmountLowThreshold) {
-						readAndSend()
-					}
-				} else {
-					dataChannel.current.send("EOF:" + file.name)
-					console.log("File transfer completed ...")
-					setMessages(prev => [...prev, {
-						type: "text",
-						content: `Sent: ${file.name}`,
-					}])
-				}
 			} catch (error) {
 				console.error("Error sending data channel message:", error)
+				// STOP LOADER
+				setIsSending(false)
+				setProgress(0)
+				return
 			}
+
+			readNextChunk()
+		}
+
+		reader.onerror = (e) => {
+			console.error("FileReader error: ", e)
+			// STOP LOADER
+			setIsSending(false)
+			setProgress(0)
+			return
 		}
 
 		if(dataChannel.current) {
 			dataChannel.current.onbufferedamountlow = () => {
-				if (offset < file.size) {
-					readAndSend()
-				}
+				// when buffer drains
+				readNextChunk()
 			}
 		}
 
-		readAndSend()
+		readNextChunk()
 	}
 
 	const sendMessage = () => {
@@ -272,7 +315,6 @@ export const useConnection = () => {
 		}
 	}
 
-	// TODO: peerConnection cleanups, [TEST_IT]
 	const leaveRoom = (roomName: string) => {
         if (ws.current && ws.current.readyState === WebSocket.OPEN && roomName) {
             ws.current.send(JSON.stringify({
@@ -293,5 +335,5 @@ export const useConnection = () => {
 		incomingChunksRef.current = []
 	}
 
-    return { peerConnection, handleOffer, startCall, sendFile, sendMessage, currentMsg, setCurrentMsg, messages, roomInfo, leaveRoom }
+    return { peerConnection, handleOffer, startCall, sendFile, sendMessage, currentMsg, setCurrentMsg, messages, roomInfo, leaveRoom, isSending, progress }
 }
