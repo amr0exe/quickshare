@@ -73,7 +73,7 @@ const leaveRoom = (roomName, ws) => {
 
 	let client = get_name(ws)
 	// delete user_records
-	state.users_name.delete(ws)
+	//state.users_name.delete(ws)
 	// delete from user's room records
 	if (state.users_room.get(ws).size > 0) {
 		state.users_room.get(ws).delete(roomName)
@@ -112,4 +112,9 @@ const broadcastRoomInfo = (c_ws) => {
 	})
 }
 
-export { joinRoom, createRoom, leaveRoom, getRoomInfo }
+const delete_user_records = (ws) => {
+	// delete user_records on websocket_disconnect
+	state.users_name.delete(ws)
+}
+
+export { joinRoom, createRoom, leaveRoom, getRoomInfo, delete_user_records }

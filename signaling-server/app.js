@@ -2,7 +2,7 @@ import { WebSocketServer } from "ws";
 import http from "http"
 
 import { messageController } from "./controller/message_controller.js";
-import { leaveRoom } from "./service/rooms_service.js";
+import { leaveRoom, delete_user_records } from "./service/rooms_service.js";
 import { get_roomName } from "./service/util_service.js";
 
 const server = http.createServer()
@@ -31,6 +31,7 @@ wss.on("connection", (ws) => {
 			console.log("No client/room to leave form", err)
 		}
 
+		delete_user_records(ws)
 		console.log("---- client disconnected!!!")
 	})
 })

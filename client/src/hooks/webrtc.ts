@@ -330,6 +330,7 @@ export const useConnection = () => {
 
 		if (peerConnection.current) {
 			peerConnection.current.close()
+			peerConnection.current = null
 		}
 
 		incomingChunksRef.current = []
