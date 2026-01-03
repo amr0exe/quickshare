@@ -17,6 +17,6 @@ A web-based platform built for sharing of **text and files** seamlessly across d
 ---
 
 ## Demo
-<video src="https://github.com/user-attachments/assets/d17d0352-19de-4bd7-a1ac-156877b10bc8" width="600" autoplay></video>
+<video src="https://github.com/user-attachments/assets/8894d4c0-e2a5-4800-8055-9a83a2c4dfb7" width="600" autoplay></video>
 
 ----
