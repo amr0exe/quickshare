@@ -43,7 +43,7 @@ export const useConnection = () => {
     const { userName, roomName } = context
 
 	useEffect(() => {
-		if (!ws.current) return
+		if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return
 
 		const handleMessage = async (event: MessageEvent) => {
 			const data = JSON.parse(event.data)
@@ -80,7 +80,7 @@ export const useConnection = () => {
 		return () => {
 			ws.current?.removeEventListener('message', handleMessage)
 		}
-	}, [userName, roomName])
+	}, [userName, roomName, ws.current?.readyState])
 
 
     // webRTC connection-setup functions

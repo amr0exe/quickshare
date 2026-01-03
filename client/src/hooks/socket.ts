@@ -1,9 +1,10 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 
 
 export function useSocket(url: string) {
     const ws = useRef<WebSocket|null>(null)
     const fileRef = useRef<HTMLInputElement|null>(null)
+    const [isConnected, setIsConnected] = useState(false)
 
     const registerUser = (userName: string) => {
 		if (userName === "") {
@@ -41,6 +42,7 @@ export function useSocket(url: string) {
 
         ws.current.onopen = () => {
             console.log("WebSocket connected!!!")
+            setIsConnected(true)
             requestRoomInfo()
         }
 
@@ -48,8 +50,13 @@ export function useSocket(url: string) {
 
         ws.current.onclose = () => {
             console.log("WebSocket disconnected!!!")
+            setIsConnected(false)
+        }
+
+        ws.current.onerror = () => {
+            setIsConnected(false)
         }
     }, [url])
 
-    return { ws, fileRef, registerUser, joinRoom, requestRoomInfo }
+    return { ws, fileRef, registerUser, joinRoom, requestRoomInfo, isConnected }
 }

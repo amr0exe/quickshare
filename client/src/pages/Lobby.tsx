@@ -13,7 +13,7 @@ function Lobby() {
     if (!context) return
 
     const { userName, setUserName, setRoomName } = context
-    const { registerUser, joinRoom, requestRoomInfo } = useSocketContext()
+    const { registerUser, joinRoom, requestRoomInfo, isConnected } = useSocketContext()
     const { roomInfo } = useConnection()
 
     const handleJoinRoom = (roomName: string) => {
@@ -30,8 +30,10 @@ function Lobby() {
     }
 
     useEffect(() => {
-        requestRoomInfo()
-    }, [location.pathname])
+        if (isConnected) {
+            requestRoomInfo()
+        }
+    }, [location.pathname, isConnected])
 
     return (
         <div className="">
