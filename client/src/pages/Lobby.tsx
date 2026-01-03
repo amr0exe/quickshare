@@ -35,6 +35,17 @@ function Lobby() {
         }
     }, [location.pathname, isConnected])
 
+    if (!isConnected) {
+        return (
+            <div className="h-screen flex flex-col justify-center items-center font-stretch-condensed">
+                <div className="animate-pulse">
+                    <p className="text-2xl font-semibold">Connecting to server ...</p>
+                    <p className="text-gray-500 text-center mt-2">Please WAIT !!!</p>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="">
             <div className="flex flex-col items-center pt-7">

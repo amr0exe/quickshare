@@ -30,9 +30,11 @@ export function useSocket(url: string) {
     }
 
     const requestRoomInfo = () => {
-        ws.current?.send(JSON.stringify({
-            type: "rooms_list"
-        }))
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current?.send(JSON.stringify({
+                type: "rooms_list"
+            }))
+        }
     }
 
     useEffect(() => {
@@ -43,7 +45,6 @@ export function useSocket(url: string) {
         ws.current.onopen = () => {
             console.log("WebSocket connected!!!")
             setIsConnected(true)
-            requestRoomInfo()
         }
 
         // remaining moved to webrtc.ts
