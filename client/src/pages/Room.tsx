@@ -31,7 +31,7 @@ function Room() {
 		<div className="absolute top-0 right-0 p-2">
 			<button
 				onClick={handleLeaveRoom} 
-				className="bg-red-600 text-white font-semibold font-stretch-condensed rounded-sm px-4 py-1.5"
+				className="bg-red-600 text-white font-semibold font-stretch-condensed rounded-sm px-4 py-1.5 cursor-pointer hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out"
 			>
 				Leave
 			</button>
@@ -70,7 +70,7 @@ function Room() {
             />
             <button 
                 onClick={sendMessage}
-                className="bg-black text-white font-semibold font-stretch-condensed text-base rounded-sm px-4 py-1.5"
+                className="bg-black text-white font-semibold font-stretch-condensed text-base rounded-sm px-4 py-1.5 cursor-pointer hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out"
             >Send Msg</button>
         </div>
 
@@ -103,7 +103,7 @@ function Room() {
 
             <button 
                 onClick={sendFile}
-                className="bg-black text-white font-semibold font-stretch-condensed rounded-sm px-4 py-1.5"
+                className="bg-black text-white font-semibold font-stretch-condensed rounded-sm px-4 py-1.5 cursor-pointer hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out"
             >Send File</button>
         </div>
     </div>

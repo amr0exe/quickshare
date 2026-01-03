@@ -11,7 +11,7 @@ function Landing() {
             <p className="text-xl mt-8">"Platform for quick and efficient file/text sharing between your PC/Laptop and Phone"</p>
 
             <button 
-                className="text-white bg-black font-semibold px-7 py-3 rounded-lg mt-3 cursor-pointer hover:opacity-60"
+                className="text-white bg-black font-semibold px-7 py-3 rounded-lg mt-3 cursor-pointer hover:opacity-60 hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out"
                 onClick={goTo}
             >Get Started</button>
         </div>

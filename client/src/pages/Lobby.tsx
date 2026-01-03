@@ -50,7 +50,7 @@ function Lobby() {
 
 					{/* shows toaster, when user tries joining room without registering username */}
                     <button
-                        className="border-2  rounded-tr-xl bg-black text-white font-semibold cursor-pointer hover:opacity-75 px-3 md:px-7 py-3.5 "
+                        className="border-2  rounded-tr-xl bg-black text-white font-semibold cursor-pointer hover:opacity-75 px-3 md:px-7 py-3.5 hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out"
                         onClick={() => registerUser(userName)}
                     >Register</button>
                 </div>
@@ -76,7 +76,7 @@ function Lobby() {
                             <button 
                                 onClick={() => handleJoinRoom(cr.name)}
 								disabled={cr.size >= 2}
-                                className={`border-2 rounded-md px-4 py-1.5 text-sm font-bold bg-black text-white cursor-pointer hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed }`}
+                                className={`border-2 rounded-md px-4 py-1.5 text-sm font-bold bg-black text-white cursor-pointer hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-90 transform transition-transform duration-200 ease-in-out }`}
                             >{ cr.size >= 2 ? "Full" : "Join"}</button> 
                         </div>
 
