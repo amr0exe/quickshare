@@ -12,9 +12,15 @@
 
 ## QuickShare
 
-A web-based platform built for sharing of **text and files** seamlessly across devices(phones, laptops, PCs). It establishes direct peer-to-peer connection via WebRTC, enabling faster & more secure transfers. Designed for quick, frictionless sharing, from small text-snippets to random PDFs, it eliminates the hassle of traditional methods.
+A p2p platform which allow file/texts sharing inside your Local Network(LAN), WiFi. It's built with WebRTC from scratch from ice-exchange to signalling-server to file-chunking. For now it supports sharing from two devices at a time only.
 
----
+## What You Can Do ???
+- Enter site
+- Join Room from you both devices
+- Share Pdfs/files/links
+- If completed, Leave !!
+- END
+
 
 ## Demo
 <video src="https://github.com/user-attachments/assets/8894d4c0-e2a5-4800-8055-9a83a2c4dfb7" width="600" autoplay></video>
